@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MeetUp | Aryan Thakur</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
+<style>
+  body{display:flex;flex-direction:column;height:100vh;height:100dvh}
+  #call{display:flex;flex-direction:column;flex:1;min-height:0}
+  header{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--glass-b);flex-wrap:wrap}
+  header h2{font-size:24px}
+  header h2 span{color:var(--red-soft)}
+  .code{font-family:ui-monospace,monospace;font-size:13px;padding:5px 10px;border-radius:8px;background:var(--glass);border:1px solid var(--glass-b)}
+  .sp{flex:1}
+  .body{flex:1;display:flex;min-height:0}
+  .grid{flex:1;display:grid;gap:10px;padding:12px;min-width:0;min-height:0;align-content:center;
+    grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+  .grid[data-n="1"]{grid-template-columns:minmax(0,900px);justify-content:center}
+  .tile{position:relative;aspect-ratio:16/9;background:#0a0d1b;border:1px solid var(--glass-b);border-radius:14px;overflow:hidden}
+  .tile video{width:100%;height:100%;object-fit:cover;display:block;background:#05060d}
+  .tile.me video.mirror{transform:scaleX(-1)}
+  .tile .label{position:absolute;left:8px;bottom:8px;font-size:13px;font-weight:600;background:rgba(4,5,11,.72);padding:3px 9px;border-radius:7px;display:flex;gap:6px;align-items:center}
+  .tile .conn{position:absolute;right:8px;top:8px;font-size:11px;background:rgba(4,5,11,.72);padding:2px 8px;border-radius:99px;color:var(--warn)}
+  .tile .conn.ok{color:var(--ok)}
+  .tile .avatar{position:absolute;inset:0;display:none;place-items:center;background:linear-gradient(135deg,#10142a,#1a1030)}
+  .tile .avatar b{width:25%;aspect-ratio:1;max-width:96px;border-radius:50%;display:grid;place-items:center;font:700 clamp(24px,5vw,44px) 'Rajdhani',sans-serif;background:linear-gradient(135deg,var(--red),var(--blue))}
+  .tile.cam-off .avatar{display:grid}
+  .chat{width:320px;border-left:1px solid var(--glass-b);display:flex;flex-direction:column;min-height:0}
+  .chat h3{padding:12px 14px;font-size:20px;border-bottom:1px solid var(--glass-b)}
+  #msgs{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+  .msg{font-size:14px;word-break:break-word}
+  .msg small{display:block;color:var(--mute);font-size:11px;letter-spacing:.5px}
+  .msg.mine small{color:var(--red-soft)}
+  .msg.sys{color:var(--mute);font-style:italic;font-size:12px}
+  .chat form{display:flex;gap:8px;padding:10px;border-top:1px solid var(--glass-b)}
+  .controls{display:flex;gap:10px;justify-content:center;padding:12px;border-top:1px solid var(--glass-b);flex-wrap:wrap}
+  .controls .btn{min-width:48px;height:46px;font-size:18px}
+  .badge{background:var(--red);color:#fff;font-size:11px;border-radius:99px;padding:0 6px;margin-left:2px}
+  #preview{width:100%;aspect-ratio:16/9;background:#05060d;border-radius:12px;object-fit:cover;transform:scaleX(-1);margin-top:16px;border:1px solid var(--glass-b)}
+  .pv-controls{display:flex;gap:8px;justify-content:center;margin-top:10px}
+  .note{font-size:12px;color:var(--mute);margin-top:12px}
+  @media (max-width:760px){
+    .body{flex-direction:column}
+    .chat{width:100%;border-left:0;border-top:1px solid var(--glass-b);height:42%}
+  }
+</style>
+</head>
+<body>
+<div class="glow a"></div><div class="glow b"></div>
+
+<section id="lobby" class="lobby">
+  <a class="back" href="/">&larr; Hub</a>
+  <div class="card box">
+    <h1>Meet<span>Up</span></h1>
+    <p class="sub">Peer-to-peer video calls. Your video goes straight to the other person, not through a server.</p>
+    <video id="preview" autoplay playsinline muted></video>
+    <div class="pv-controls">
+      <button class="btn" id="pvMic" type="button">🎙️ Mic on</button>
+      <button class="btn" id="pvCam" type="button">📷 Camera on</button>
+    </div>
+    <label for="name">Your name</label>
+    <input id="name" type="text" maxlength="24" placeholder="e.g. Aryan" autocomplete="nickname">
+    <label for="room">Room code</label>
+    <div class="row">
+      <input id="room" type="text" maxlength="32" placeholder="room code" autocomplete="off" spellcheck="false">
+      <button class="btn" id="newRoom" type="button">New</button>
+    </div>
+    <button class="btn primary" id="joinBtn" type="button" style="width:100%;margin-top:18px">Join call</button>
+    <p class="err" id="err" role="alert"></p>
+    <p class="note">Up to 6 people per room. Camera and microphone need HTTPS (or localhost).</p>
+  </div>
+</section>
+
+<div id="call" class="hidden">
+  <header>
+    <h2>Meet<span>Up</span></h2>
+    <span class="code" id="roomLabel"></span>
+    <button class="btn" id="copyLink" type="button">Copy invite link</button>
+    <span class="sp"></span>
+    <span id="count" style="color:var(--mute);font-size:13px"></span>
+  </header>
+  <div class="body">
+    <div class="grid" id="grid" data-n="1"></div>
+    <aside class="chat hidden" id="chat" aria-label="Chat">
+      <h3>Chat</h3>
+      <div id="msgs" aria-live="polite"></div>
+      <form id="chatForm">
+        <input id="chatIn" type="text" maxlength="500" placeholder="Message everyone..." autocomplete="off">
+        <button class="btn primary" type="submit">Send</button>
+      </form>
+    </aside>
+  </div>
+  <div class="controls">
+    <button class="btn" id="mic" type="button" title="Mute / unmute" aria-label="Toggle microphone">🎙️</button>
+    <button class="btn" id="cam" type="button" title="Camera on / off" aria-label="Toggle camera">📷</button>
+    <button class="btn" id="share" type="button" title="Share your screen" aria-label="Share screen">🖥️</button>
+    <button class="btn" id="chatBtn" type="button" title="Chat" aria-label="Toggle chat">💬<span class="badge hidden" id="unread">0</span></button>
+    <button class="btn danger" id="leave" type="button" title="Leave" aria-label="Leave call">📞 Leave</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="meet.js"></script>
+</body>
+</html>

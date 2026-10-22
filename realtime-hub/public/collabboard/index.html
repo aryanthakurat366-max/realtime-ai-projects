@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CollabBoard | Aryan Thakur</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
+<style>
+  body{display:flex;flex-direction:column;height:100vh;height:100dvh}
+  #app{display:flex;flex-direction:column;flex:1;min-height:0}
+  header{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--glass-b);flex-wrap:wrap}
+  header h2{font-size:24px}
+  header h2 span{color:var(--red-soft)}
+  .code{font-family:ui-monospace,monospace;font-size:13px;padding:5px 10px;border-radius:8px;background:var(--glass);border:1px solid var(--glass-b)}
+  .sp{flex:1}
+  .users{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .user{display:flex;align-items:center;gap:6px;font-size:13px;padding:3px 9px 3px 7px;border-radius:99px;background:var(--glass);border:1px solid var(--glass-b)}
+  .user i{width:9px;height:9px;border-radius:50%;display:inline-block}
+  main{flex:1;display:flex;min-height:0}
+  .tools{display:flex;flex-direction:column;gap:10px;padding:12px;border-right:1px solid var(--glass-b);width:76px;align-items:center;overflow-y:auto}
+  .tools .btn{width:48px;height:44px;padding:0;font-size:18px}
+  .swatches{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .swatch{width:20px;height:20px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}
+  .swatch.sel{border-color:#fff;transform:scale(1.15)}
+  .size{writing-mode:vertical-lr;direction:rtl;height:90px;accent-color:var(--red)}
+  .stage{flex:1;display:grid;place-items:center;padding:12px;min-width:0;min-height:0}
+  #board{position:relative;aspect-ratio:16/9;width:min(100%,calc((100vh - 130px) * 16 / 9));width:min(100%,calc((100dvh - 130px) * 16 / 9));
+    border-radius:14px;overflow:hidden;border:1px solid var(--glass-b);box-shadow:0 10px 50px rgba(0,0,0,.5);background:#0b0e1c}
+  canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair;display:block}
+  #cursors{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .cur{position:absolute;left:0;top:0;transition:transform 60ms linear;will-change:transform}
+  .cur::before{content:"";display:block;width:12px;height:12px;border-radius:50% 50% 50% 0;background:var(--c);transform:rotate(-45deg)}
+  .cur b{position:absolute;left:14px;top:10px;font:600 11px 'Space Grotesk',sans-serif;background:var(--c);color:#04050b;padding:1px 6px;border-radius:5px;white-space:nowrap}
+  #status{font-size:12px;color:var(--mute)}
+  #status.ok{color:var(--ok)}
+  @media (max-width:640px){
+    main{flex-direction:column-reverse}
+    .tools{flex-direction:row;width:auto;border-right:0;border-top:1px solid var(--glass-b);overflow-x:auto;overflow-y:hidden;justify-content:flex-start}
+    .tools .btn{flex:none}
+    .size{writing-mode:horizontal-tb;direction:ltr;height:auto;width:90px;flex:none}
+    #board{width:100%}
+  }
+</style>
+</head>
+<body>
+<div class="glow a"></div><div class="glow b"></div>
+
+<section id="lobby" class="lobby">
+  <a class="back" href="/">&larr; Hub</a>
+  <div class="card box">
+    <h1>Collab<span>Board</span></h1>
+    <p class="sub">Draw together in real time. Share the room code and anyone can join.</p>
+    <label for="name">Your name</label>
+    <input id="name" type="text" maxlength="24" placeholder="e.g. Aryan" autocomplete="nickname">
+    <label for="room">Room code</label>
+    <div class="row">
+      <input id="room" type="text" maxlength="32" placeholder="room code" autocomplete="off" spellcheck="false">
+      <button class="btn" id="newRoom" type="button" title="Generate a new code">New</button>
+    </div>
+    <button class="btn primary" id="joinBtn" type="button" style="width:100%;margin-top:18px">Join board</button>
+    <p class="err" id="err" role="alert"></p>
+  </div>
+</section>
+
+<div id="app" class="hidden">
+  <header>
+    <h2>Collab<span>Board</span></h2>
+    <span class="code" id="roomLabel"></span>
+    <button class="btn" id="copyLink" type="button">Copy invite link</button>
+    <span id="status">connecting...</span>
+    <span class="sp"></span>
+    <div class="users" id="users" aria-live="polite"></div>
+    <button class="btn danger" id="leave" type="button">Leave</button>
+  </header>
+  <main>
+    <aside class="tools" aria-label="Drawing tools">
+      <button class="btn active" id="toolPen" type="button" title="Pen (P)" aria-label="Pen">✏️</button>
+      <button class="btn" id="toolEraser" type="button" title="Eraser (E)" aria-label="Eraser">🧽</button>
+      <div class="swatches" id="swatches" role="group" aria-label="Colors"></div>
+      <input class="size" id="size" type="range" min="2" max="30" value="4" aria-label="Brush size">
+      <button class="btn" id="undo" type="button" title="Undo my last stroke (Ctrl+Z)" aria-label="Undo">↩️</button>
+      <button class="btn" id="save" type="button" title="Download PNG" aria-label="Download PNG">💾</button>
+      <button class="btn danger" id="clear" type="button" title="Clear board for everyone" aria-label="Clear board">🗑️</button>
+    </aside>
+    <div class="stage">
+      <div id="board">
+        <canvas id="canvas" width="1600" height="900"></canvas>
+        <div id="cursors"></div>
+      </div>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="board.js"></script>
+</body>
+</html>

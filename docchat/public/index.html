@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DocChat | Aryan Thakur</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#04050b;--red:#ff2d3d;--red-soft:#ff5a66;--blue:#2f6bff;--glass:rgba(255,255,255,.04);--glass-b:rgba(255,255,255,.10);--text:#e9ecf8;--mute:#8c93b3;--ok:#2ee59d;--warn:#ffb02e}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:'Space Grotesk',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;display:flex;flex-direction:column;height:100dvh}
+h1,h2{font-family:'Rajdhani',sans-serif;letter-spacing:.5px;line-height:1.1}
+::selection{background:var(--red);color:#fff}
+.glow{position:fixed;z-index:-1;border-radius:50%;filter:blur(120px);pointer-events:none}
+.glow.a{width:480px;height:480px;background:rgba(255,45,61,.20);top:-160px;left:-120px}
+.glow.b{width:560px;height:560px;background:rgba(47,107,255,.18);bottom:-220px;right:-160px}
+.card{background:var(--glass);border:1px solid var(--glass-b);border-radius:16px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:600 14px 'Space Grotesk',sans-serif;color:var(--text);background:var(--glass);border:1px solid var(--glass-b);border-radius:10px;padding:9px 14px;cursor:pointer;text-decoration:none;transition:transform .15s,border-color .15s}
+.btn:hover{border-color:var(--red-soft);transform:translateY(-1px)}
+.btn:focus-visible,textarea:focus-visible,.cite:focus-visible,.drop:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.btn.primary{background:linear-gradient(90deg,var(--red),var(--blue));border-color:transparent;color:#fff}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+.hidden{display:none!important}
+header{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--glass-b);flex-wrap:wrap}
+header h1{font-size:26px}
+header h1 span{color:var(--red-soft)}
+header a{color:var(--mute);font-size:13px;text-decoration:none}
+header a:hover{color:var(--text)}
+.sp{flex:1}
+.badge{font-size:12px;padding:3px 10px;border-radius:99px;border:1px solid var(--glass-b);color:var(--mute)}
+.badge.ai{color:var(--ok);border-color:rgba(46,229,157,.4)}
+.badge.demo{color:var(--warn);border-color:rgba(255,176,46,.4)}
+
+#upload{flex:1;display:grid;place-items:center;padding:20px 16px}
+.drop{width:min(100%,560px);padding:44px 24px;text-align:center;border:2px dashed var(--glass-b);cursor:pointer;transition:border-color .2s,background .2s}
+.drop.over,.drop:hover{border-color:var(--red-soft);background:rgba(255,45,61,.05)}
+.drop .ic{font-size:44px}
+.drop h2{font-size:30px;margin:8px 0 6px}
+.drop p{color:var(--mute);font-size:14px}
+.how{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.how span{font-size:12px;padding:3px 10px;border-radius:99px;border:1px solid var(--glass-b);color:var(--mute)}
+#uerr{color:var(--red-soft);margin-top:14px;min-height:22px;text-align:center;font-size:14px}
+.spinner{width:34px;height:34px;border:3px solid var(--glass-b);border-top-color:var(--red);border-radius:50%;animation:sp 0.8s linear infinite;margin:0 auto 12px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+#chat{flex:1;display:flex;flex-direction:column;min-height:0;max-width:880px;width:100%;margin:0 auto}
+.docbar{display:flex;gap:10px;align-items:center;padding:10px 16px;font-size:13px;color:var(--mute);flex-wrap:wrap}
+.docbar b{color:var(--text);font-weight:600;max-width:50vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#log{flex:1;overflow-y:auto;padding:8px 16px 16px;display:flex;flex-direction:column;gap:14px}
+.msg{max-width:92%;padding:12px 14px;border-radius:14px;white-space:pre-wrap;word-break:break-word;font-size:15px}
+.msg.user{align-self:flex-end;background:linear-gradient(135deg,rgba(255,45,61,.25),rgba(47,107,255,.25));border:1px solid var(--glass-b)}
+.msg.bot{align-self:flex-start;background:var(--glass);border:1px solid var(--glass-b)}
+.msg.err{color:var(--red-soft)}
+.cite{font:600 11px 'Space Grotesk',sans-serif;color:#fff;background:var(--blue);border:0;border-radius:6px;padding:0 6px;margin:0 1px;cursor:pointer;vertical-align:1px}
+.cite:hover{background:var(--red)}
+.srcs{margin-top:10px;display:flex;flex-direction:column;gap:6px;white-space:normal}
+details.src{border:1px solid var(--glass-b);border-radius:10px;padding:6px 10px;font-size:13px;color:var(--mute)}
+details.src[open]{color:var(--text)}
+details.src summary{cursor:pointer;list-style:none}
+details.src summary b{color:var(--blue)}
+details.src.flash{border-color:var(--red);box-shadow:0 0 0 2px rgba(255,45,61,.3)}
+details.src p{margin-top:6px;white-space:pre-wrap;line-height:1.5}
+.dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--mute);margin:0 2px;animation:b 1s infinite}
+.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,80%,100%{opacity:.3}40%{opacity:1}}
+.hints{display:flex;gap:8px;flex-wrap:wrap}
+.hints button{font:500 13px 'Space Grotesk',sans-serif;color:var(--mute);background:var(--glass);border:1px solid var(--glass-b);border-radius:99px;padding:5px 12px;cursor:pointer}
+.hints button:hover{color:var(--text);border-color:var(--red-soft)}
+form{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--glass-b);align-items:flex-end}
+textarea{flex:1;resize:none;background:rgba(255,255,255,.05);border:1px solid var(--glass-b);border-radius:12px;color:var(--text);padding:11px 13px;font:500 15px 'Space Grotesk',sans-serif;max-height:140px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="glow a"></div><div class="glow b"></div>
+<header>
+  <h1>Doc<span>Chat</span></h1>
+  <span class="badge" id="mode">checking...</span>
+  <span class="sp"></span>
+  <a href="https://aryanthakurat366-max.github.io/aryan-thakur.github.io/#projects">&larr; Portfolio</a>
+</header>
+
+<section id="upload">
+  <div style="width:min(100%,560px)">
+    <div class="card drop" id="drop" tabindex="0" role="button" aria-label="Upload a document">
+      <div id="idle">
+        <div class="ic">📄</div>
+        <h2>Drop a PDF here</h2>
+        <p>or click to choose a file. PDF, TXT or MD, up to 10 MB.</p>
+      </div>
+      <div id="busy" class="hidden"><div class="spinner"></div><p id="busyMsg">Reading and indexing your document...</p></div>
+    </div>
+    <input id="file" type="file" accept=".pdf,.txt,.md,application/pdf,text/plain" class="hidden">
+    <div id="uerr" role="alert"></div>
+    <div class="how"><span>1. extract text</span><span>2. split into passages</span><span>3. embed with Gemini</span><span>4. retrieve best matches</span><span>5. answer with citations</span></div>
+  </div>
+</section>
+
+<section id="chat" class="hidden">
+  <div class="docbar"><span>📄</span><b id="docName"></b><span id="docMeta"></span><span class="sp"></span><button class="btn" id="newDoc" type="button">New document</button></div>
+  <div id="log" aria-live="polite"></div>
+  <form id="form">
+    <textarea id="q" rows="1" maxlength="500" placeholder="Ask something about the document..." aria-label="Your question"></textarea>
+    <button class="btn primary" id="send" type="submit">Ask</button>
+  </form>
+</section>
+<script src="app.js"></script>
+</body>
+</html>

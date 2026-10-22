@@ -1,0 +1,33 @@
+# Render "Blueprint": deploys both backends from this one repo (Dashboard -> New -> Blueprint).
+services:
+  - type: web
+    name: realtime-hub            # CollabBoard + MeetUp
+    runtime: node
+    rootDir: realtime-hub
+    buildCommand: npm install --omit=dev
+    startCommand: node server.js
+    plan: free
+    healthCheckPath: /health
+    # Optional TURN relay for people behind strict NATs/firewalls (e.g. free tier at metered.ca):
+    # envVars:
+    #   - key: TURN_URLS
+    #     value: turn:YOUR_TURN_HOST:443?transport=tcp
+    #   - key: TURN_USER
+    #     sync: false
+    #   - key: TURN_PASS
+    #     sync: false
+
+  - type: web
+    name: docchat                 # AI / RAG
+    runtime: node
+    rootDir: docchat
+    buildCommand: npm install --omit=dev
+    startCommand: node server.js
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: GEMINI_API_KEY       # paste in the Render dashboard; never commit it
+        sync: false
+      # - key: GEMINI_MODEL       # optional; default gemini-3.8-flash (check https://ai.google.dev/gemini-api/docs/models)
+      # - key: UPLOAD_LIMIT       # uploads per IP per hour (default 10)
+      # - key: ASK_LIMIT          # questions per IP per hour (default 60)

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Realtime Hub | Aryan Thakur</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
+<style>
+  .wrap{max-width:860px;margin:0 auto;padding:72px 16px 40px}
+  h1{font-size:clamp(36px,7vw,56px);margin-bottom:8px}
+  h1 span{background:linear-gradient(90deg,var(--red),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:28px}
+  .app{padding:24px;display:flex;flex-direction:column;gap:10px}
+  .app .ic{font-size:34px}
+  .app h2{font-size:28px}
+  .app p{color:var(--mute);font-size:15px;flex:1}
+  .tags{display:flex;gap:6px;flex-wrap:wrap}
+  .tags span{font-size:12px;padding:3px 9px;border-radius:99px;border:1px solid var(--glass-b);color:var(--mute)}
+</style>
+</head>
+<body>
+<div class="glow a"></div><div class="glow b"></div>
+<a class="back" href="https://aryanthakurat366-max.github.io/aryan-thakur.github.io/#projects">&larr; Portfolio</a>
+<main class="wrap">
+  <h1>Realtime <span>Hub</span></h1>
+  <p style="color:var(--mute)">Two live apps served by one Node + Socket.IO server.</p>
+  <div class="grid">
+    <article class="card app">
+      <div class="ic">🎨</div><h2>CollabBoard</h2>
+      <p>A shared whiteboard. Draw together, see everyone's live cursor, undo your own strokes.</p>
+      <div class="tags"><span>WebSockets</span><span>Socket.IO</span><span>Canvas</span></div>
+      <a class="btn primary" href="/collabboard/">Open CollabBoard &rarr;</a>
+    </article>
+    <article class="card app">
+      <div class="ic">📹</div><h2>MeetUp</h2>
+      <p>Peer-to-peer video calls with screen share and chat. Video flows directly between browsers.</p>
+      <div class="tags"><span>WebRTC</span><span>Signaling</span><span>Data channels</span></div>
+      <a class="btn primary" href="/meetup/">Open MeetUp &rarr;</a>
+    </article>
+  </div>
+</main>
+</body>
+</html>
